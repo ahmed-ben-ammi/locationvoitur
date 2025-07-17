@@ -137,6 +137,42 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Erreur du serveur' });
   }
 });
+// Route de login
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  // Vérification des champs
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Veuillez remplir tous les champs' });
+  }
+
+  // Rechercher l’utilisateur par email
+  const sql = `SELECT * FROM users WHERE email = ? LIMIT 1`;
+  db.query(sql, [email], async (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erreur serveur' });
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+    }
+
+    const user = results[0];
+
+    // Comparer le mot de passe avec le hash enregistré
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+    }
+
+    // Authentification réussie
+    res.status(200).json({
+      message: 'Connexion réussie',
+      userId: user.id,
+      name: user.name,
+      email: user.email
+    });
+  });
+});
 
 
 // server

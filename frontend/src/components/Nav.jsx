@@ -21,10 +21,10 @@ export default function Nav() {
               <NavLink to={"/cars"} className="nav-link" href="#">Véhicules</NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">Services</a>
+              <NavLink to={"/register"} className="nav-link" href="#">Register</NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">À Propos</a>
+              <NavLink to={"/login"} className="nav-link" href="#">login</NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">Contact</a>

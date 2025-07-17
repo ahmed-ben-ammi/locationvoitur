@@ -30,6 +30,11 @@ export default function CarDetail() {
         <div className="col-md-6">
           <p><strong>Description:</strong> {car.description}</p>
           <p><strong>Prix par jour:</strong> {car.price_per_day} DH</p>
+          <p><strong>Année:</strong> {car.year}</p>
+          <p><strong>Kilométrage:</strong> {car.mileage?.toLocaleString()} km</p>
+          <p><strong>Carburant:</strong> {car.fuel_type}</p>
+          <p><strong>Transmission:</strong> {car.transmission}</p>
+          <p><strong>Places:</strong> {car.seats}</p>
           <p><strong>Status:</strong> 
             <span className={`badge ms-2 ${car.status === 'available' ? 'bg-success' :
               car.status === 'rented' ? 'bg-warning' : 'bg-danger'}`}>
