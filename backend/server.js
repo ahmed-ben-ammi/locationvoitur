@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
@@ -10,6 +11,7 @@ const bcrypt = require('bcrypt');
 
 
 app.use(bodyParser.json());
+app.use(cors())
 
 // hada bach nrf3o lmilfat
 const storage = multer.diskStorage({

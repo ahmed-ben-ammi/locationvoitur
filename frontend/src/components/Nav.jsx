@@ -1,6 +1,8 @@
+import { NavLink } from "react-router-dom";
+
 export default function Nav() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow  sticky-top">
       <div className="container">
         <a className="navbar-brand d-flex align-items-center" href="#">
           <span className="me-2">🚗</span>
@@ -13,10 +15,10 @@ export default function Nav() {
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link active" href="#">Accueil</a>
+              <NavLink to={"/"} className="nav-link active" href="#">Accueil</NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">Véhicules</a>
+              <NavLink to={"/cars"} className="nav-link" href="#">Véhicules</NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">Services</a>
