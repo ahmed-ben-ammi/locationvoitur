@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { NavLink, useNavigate } from 'react-router-dom'; // ⬅️ Ajout de useNavigate
 
 export default function Login() {
+  const navigate = useNavigate(); // ⬅️ Initialisation
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -23,17 +25,19 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await axios. ('http://localhost:3000/login', formData);
-
-      // Message de succès
+      const response = await axios.post('http://localhost:3000/login', formData);
       setMessage(response.data.message);
 
-      // Tu peux aussi stocker les infos du user si tu veux
-      // localStorage.setItem("user", JSON.stringify(response.data));
+      //  Stocker l'utilisateur (si nécessaire)
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
+      //  Redirection après 2   secondes
+      setTimeout(() => {
+        navigate("/cars");
+      }, 2000);
     } catch (err) {
       if (err.response) {
-        console.log(err)
+        console.log(err);
         setError(err.response.data.message || 'Erreur lors de la connexion');
       } else {
         setError('Erreur de connexion au serveur');
@@ -71,6 +75,10 @@ export default function Login() {
             required
           />
         </div>
+
+        <NavLink to="/register" className="d-block mb-3 text-decoration-none text-primary">
+          👉 Créer un compte
+        </NavLink>
 
         <button type="submit" className="btn btn-primary">Se connecter</button>
       </form>
