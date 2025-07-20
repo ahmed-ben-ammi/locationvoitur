@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { NavLink, useNavigate } from 'react-router-dom';
+import Nav from '../components/Nav';
 
 
 export default function CarsList() {
@@ -32,7 +33,9 @@ export default function CarsList() {
   };
 
   return (
-    <div className="container mt-4">
+<div>
+  <Nav/>
+      <div className="container mt-4">
       <h2 className="text-center mb-4">Liste des Voitures</h2>
       <div className="row">
         {cars.map(car => (
@@ -121,5 +124,6 @@ export default function CarsList() {
         </div>
       )}
     </div>
+</div>
   );
 }

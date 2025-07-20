@@ -7,6 +7,7 @@ import CarsList from './pages/CarsList'
 import CarDetail from './pages/CarDetail'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import Admin from './pages/Admin'
 
 
 function App() {
@@ -14,7 +15,7 @@ function App() {
 
   return (
     <>
-      <Nav/>
+     
 
 <Routes>
   <Route path="/" element={<Home />} />
@@ -22,6 +23,7 @@ function App() {
    <Route path="/cars/:id" element={<CarDetail />} />
    <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/admin" element={<Admin />} />
 </Routes>
 
     </>

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { NavLink, useNavigate } from 'react-router-dom'; // ⬅️ Ajout de useNavigate
+import { NavLink, useNavigate } from 'react-router-dom';
+import Nav from '../components/Nav';
 
 export default function Login() {
-  const navigate = useNavigate(); // ⬅️ Initialisation
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -28,16 +29,20 @@ export default function Login() {
       const response = await axios.post('http://localhost:3000/login', formData);
       setMessage(response.data.message);
 
-      //  Stocker l'utilisateur (si nécessaire)
+      // Stocker l'utilisateur
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      //  Redirection après 2   secondes
-      setTimeout(() => {
+      // Redirection selon le rôle
+      const role = response.data.role;
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
         navigate("/cars");
-      }, 2000);
+      }
+
     } catch (err) {
       if (err.response) {
-        console.log(err);
+        console.error(err);
         setError(err.response.data.message || 'Erreur lors de la connexion');
       } else {
         setError('Erreur de connexion au serveur');
@@ -46,7 +51,9 @@ export default function Login() {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '400px' }}>
+<div>
+  <Nav/>
+      <div className="container mt-5" style={{ maxWidth: '400px' }}>
       <h2>Connexion</h2>
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-danger">{error}</div>}
@@ -83,5 +90,6 @@ export default function Login() {
         <button type="submit" className="btn btn-primary">Se connecter</button>
       </form>
     </div>
+</div>
   );
 }

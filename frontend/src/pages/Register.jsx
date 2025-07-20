@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Nav from '../components/Nav';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -47,7 +48,9 @@ export default function Register() {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '400px' }}>
+   <div>
+    <Nav/>
+     <div className="container mt-5" style={{ maxWidth: '400px' }}>
       <h2>Inscription</h2>
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-danger">{error}</div>}
@@ -95,5 +98,6 @@ export default function Register() {
         <button type="submit" className="btn btn-primary">S'inscrire</button>
       </form>
     </div>
+   </div>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import Nav from '../components/Nav';
+
 
 export default function CarDetail() {
   const { id } = useParams();
@@ -17,7 +19,9 @@ export default function CarDetail() {
   }
 
   return (
-    <div className="container mt-5">
+  <div>
+    <Nav/>
+        <div className="container mt-5">
       <h2 className="mb-4">{car.brand} {car.model}</h2>
       <div className="row">
         <div className="col-md-6">
@@ -45,5 +49,6 @@ export default function CarDetail() {
         </div>
       </div>
     </div>
+  </div>
   );
 }

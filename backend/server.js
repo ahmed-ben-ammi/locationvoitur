@@ -166,11 +166,11 @@ app.post('/login', (req, res) => {
 
     // Authentification réussie
     res.status(200).json({
-      message: 'Connexion réussie',
       userId: user.id,
       name: user.name,
-      email: user.email
-    });
+      email: user.email,
+      role: user.role
+    });  
   });
 });
 
