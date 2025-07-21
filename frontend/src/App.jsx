@@ -8,6 +8,10 @@ import CarDetail from './pages/CarDetail'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Admin from './pages/Admin'
+import Carslistadmin from './pages/Carslistadmin'
+import Modifier from './pages/Modifier'
+import AddCarForm from './pages/AjouterVoiture'
+import AjouterVoiture from './pages/AjouterVoiture'
 
 
 function App() {
@@ -24,6 +28,9 @@ function App() {
    <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/cars" element={<Carslistadmin />} />
+      <Route path="/modifier/:id" element={<Modifier />} />
+       <Route path="/add" element={<AjouterVoiture/>} />
 </Routes>
 
     </>

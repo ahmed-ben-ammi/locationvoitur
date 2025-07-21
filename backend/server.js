@@ -4,42 +4,55 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const fs = require('fs');
 
 const app = express();
 const port = 3000;
-const bcrypt = require('bcrypt');
 
-
+app.use(cors());
 app.use(bodyParser.json());
-app.use(cors())
 
-// hada bach nrf3o lmilfat
+// 📂 Configurer le stockage des fichiers
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/images');  // lmilf dyal tkhzin
+    cb(null, 'public/images');  // 📁 Dossier de stockage
   },
   filename: function (req, file, cb) {
-    // 2ism jdid ltswira
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname); 
+    const ext = path.extname(file.originalname);
     cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
 });
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
-
-// hadi lpartie dyal sql
+// 🛠️ Connexion MySQL
 const db = mysql.createPool({
   host: 'localhost',
-  user: 'root',         
+  user: 'root',
   password: '',
   database: 'cars_db'
 });
 
-// bach ikdm dosersyal imag
+// 🔁 Servir les fichiers statiques (images)
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// GET 
+// 📤 Route dédiée pour upload image seule (utilisée par Modifier.jsx)
+app.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Aucun fichier reçu' });
+  }
+
+  const imageUrl = `http://localhost:${port}/images/${req.file.filename}`;
+  res.status(200).json({ imageUrl });
+});
+
+
+
+//  CRUD CARS
+
+
+// GET toutes les voitures
 app.get('/cars', (req, res) => {
   db.query('SELECT * FROM Cars', (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -47,31 +60,33 @@ app.get('/cars', (req, res) => {
   });
 });
 
-// GET id
+// GET voiture par ID
 app.get('/cars/:id', (req, res) => {
   const carId = req.params.id;
   db.query('SELECT * FROM Cars WHERE id = ?', [carId], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.length === 0) return res.status(404).json({ message: 'Car not found' });
+    if (results.length === 0) return res.status(404).json({ message: 'Voiture introuvable' });
     res.json(results[0]);
   });
 });
 
-// POST 
+// POST : Ajouter une voiture
 app.post('/cars', upload.single('image'), (req, res) => {
   const { brand, model, registration, price_per_day, status, description } = req.body;
-  let image_url = 'default_car.jpg'; // tswirabach njrb
+  let image_url = 'default_car.jpg';
   if (req.file) {
-    image_url = req.file.filename; // smit lmolf
+    image_url = req.file.filename;
   }
 
   const sql = `INSERT INTO Cars (brand, model, registration, price_per_day, status, image_url, description)
                VALUES (?, ?, ?, ?, ?, ?, ?)`;
   db.query(sql, [brand, model, registration, price_per_day, status, image_url, description], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({ message: 'Car added', carId: results.insertId });
+    res.status(201).json({ message: 'Voiture ajoutée', carId: results.insertId });
   });
 });
+
+// PUT : Modifier une voiture
 app.put('/cars/:id', upload.single('image'), (req, res) => {
   const carId = req.params.id;
   const { brand, model, registration, price_per_day, status, description } = req.body;
@@ -79,6 +94,19 @@ app.put('/cars/:id', upload.single('image'), (req, res) => {
 
   if (req.file) {
     image_url = req.file.filename;
+
+    // Optionnel : supprimer l'ancienne image
+    db.query('SELECT image_url FROM Cars WHERE id = ?', [carId], (err, results) => {
+      if (!err && results.length > 0) {
+        const oldImage = results[0].image_url;
+        if (oldImage && oldImage !== 'default_car.jpg') {
+          const oldImagePath = path.join(__dirname, 'public/images', oldImage);
+          fs.unlink(oldImagePath, (err) => {
+            if (err) console.error('Erreur suppression ancienne image:', err.message);
+          });
+        }
+      }
+    });
   }
 
   let sql = `UPDATE Cars SET brand = ?, model = ?, registration = ?, price_per_day = ?, status = ?, description = ?`;
@@ -94,89 +122,92 @@ app.put('/cars/:id', upload.single('image'), (req, res) => {
 
   db.query(sql, params, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.affectedRows === 0) return res.status(404).json({ message: 'Car not found' });
-    res.json({ message: 'Car updated successfully' });
+    if (results.affectedRows === 0) return res.status(404).json({ message: 'Voiture non trouvée' });
+    res.json({ message: 'Voiture mise à jour avec succès' });
   });
 });
+
+// DELETE : Supprimer une voiture
 app.delete('/cars/:id', (req, res) => {
   const carId = req.params.id;
+
+  // Optionnel : supprimer image liée
+  db.query('SELECT image_url FROM Cars WHERE id = ?', [carId], (err, results) => {
+    if (!err && results.length > 0) {
+      const image = results[0].image_url;
+      if (image && image !== 'default_car.jpg') {
+        const imagePath = path.join(__dirname, 'public/images', image);
+        fs.unlink(imagePath, (err) => {
+          if (err) console.error('Erreur suppression image:', err.message);
+        });
+      }
+    }
+  });
+
   db.query('DELETE FROM Cars WHERE id = ?', [carId], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.affectedRows === 0) return res.status(404).json({ message: 'Car not found' });
-    res.json({ message: 'Car deleted successfully' });
+    if (results.affectedRows === 0) return res.status(404).json({ message: 'Voiture non trouvée' });
+    res.json({ message: 'Voiture supprimée avec succès' });
   });
 });
 
 
-// nsjlo user jdid
+
+// Enregistrement
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
-
-  // hadi z3ma wch 3mrti limtlob
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Veuillez remplir tous les champs' });
   }
 
   try {
-    // tcfirpasword
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // ndkhlo user f db
     const sql = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`;
     db.query(sql, [name, email, hashedPassword], (err, result) => {
       if (err) {
         if (err.code === 'ER_DUP_ENTRY') {
-          return res.status(409).json({ message: 'Lemail est utilisé'});
+          return res.status(409).json({ message: 'L’email est déjà utilisé' });
         }
         return res.status(500).json({ error: err.message });
       }
-
-      res.status(201).json({ message: "Le compte a été créé avec succès.", userId: result.insertId });
+      res.status(201).json({ message: "Compte créé avec succès", userId: result.insertId });
     });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur du serveur' });
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 });
-// Route de login
+
+// Connexion
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-
-  // Vérification des champs
   if (!email || !password) {
     return res.status(400).json({ message: 'Veuillez remplir tous les champs' });
   }
 
-  // Rechercher l’utilisateur par email
   const sql = `SELECT * FROM users WHERE email = ? LIMIT 1`;
   db.query(sql, [email], async (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur serveur' });
-
-    if (results.length === 0) {
-      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
-    }
+    if (results.length === 0) return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
 
     const user = results[0];
-
-    // Comparer le mot de passe avec le hash enregistré
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
 
-    // Authentification réussie
     res.status(200).json({
       userId: user.id,
       name: user.name,
       email: user.email,
       role: user.role
-    });  
+    });
   });
 });
 
 
+//  Lancer le serveur
 
-// server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Serveur lancé sur : http://localhost:${port}`);
 });
