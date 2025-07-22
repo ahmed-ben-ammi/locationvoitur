@@ -1,116 +1,151 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { BsPlusCircle } from "react-icons/bs";
+import React, { useState } from 'react';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function AjouterVoiture({ chenge,  fetchCars }) {
-  const [marque, setMarque] = useState("");
-  const [modele, setModele] = useState("");
-  const [matricule, setMatricule] = useState("");
-  const [price, setPrice] = useState("");
-  const [fuel, setFuel] = useState("");
-  const [image, setImage] = useState(null);
+export default function AjouterVoiture() {
+  const [formData, setFormData] = useState({
+    brand: '',
+    model: '',
+    registration: '',
+    price_per_day: '',
+    year: '',
+    mileage: '',
+    seats: '',
+    status: 'available',
+    fuel_type: '',
+    transmission: '',
+    description: '',
+    image: null,
+    created_at: new Date().toISOString(),
+  });
 
-  const handleSubmit = (e) => {
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'image') {
+      const file = files[0];
+      setFormData({ ...formData, image: file });
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("marque", marque);
-    formData.append("modele", modele);
-    formData.append("matricule", matricule);
-    formData.append("price", price);
-    formData.append("fuel", fuel);
-    formData.append("image", image);
+    const data = new FormData();
 
-    axios
-      .post("http://localhost:3000/cars", formData)
-      .then((res) => {
-        alert("Voiture ajoutée !");
-        setMarque("");
-        setModele("");
-        setMatricule("");
-        setPrice("");
-        setFuel("");
-        setImage(null);
-        fetchCars(); // rafraîchir la liste
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Erreur lors de l'ajout !");
-      });
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+
+    try {
+      const res = await axios.post('http://localhost:3000/cars', data);
+      alert(' Voiture ajoutée avec succès !');
+      console.log(res.data);
+    } catch (err) {
+      console.error("Erreur lors de l'ajout :", err);
+      alert(' Erreur lors de l\'ajout');
+    }
   };
 
   return (
-    <div className={""}>
-      <div className="d-flex justify-content-center mt-4">
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            boxShadow: "0 0 3px black",
-            borderRadius: "10px",
-            padding: "15px",
-            backgroundColor: "#212529",
-          }}
-          encType="multipart/form-data"
-        >
-          <label className="text-light">Marque</label>
-          <input
-            type="text"
-            className="form-control"
-            value={marque}
-            onChange={(e) => setMarque(e.target.value)}
-            required
-          />
+    <div className="container mt-5">
+      <div className="card shadow">
+        <div className="card-header bg-dark text-white">
+          <h4>Ajouter une voiture</h4>
+        </div>
+        <div className="card-body">
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Marque</label>
+                <input type="text" name="brand" className="form-control" onChange={handleChange} required />
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Modèle</label>
+                <input type="text" name="model" className="form-control" onChange={handleChange} required />
+              </div>
 
-          <label className="mt-4 text-light">Modèle</label>
-          <input
-            type="text"
-            className="form-control"
-            value={modele}
-            onChange={(e) => setModele(e.target.value)}
-            required
-          />
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Immatriculation</label>
+                <input type="text" name="registration" className="form-control" onChange={handleChange} required />
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Prix par jour (DH)</label>
+                <input type="number" name="price_per_day" className="form-control" onChange={handleChange} required />
+              </div>
 
-          <label className="mt-4 text-light">Immatriculation</label>
-          <input
-            type="text"
-            className="form-control"
-            value={matricule}
-            onChange={(e) => setMatricule(e.target.value)}
-            required
-          />
+              <div className="col-md-4 mb-3">
+                <label className="form-label">Année</label>
+                <input type="number" name="year" className="form-control" onChange={handleChange} required />
+              </div>
+              <div className="col-md-4 mb-3">
+                <label className="form-label">Kilométrage</label>
+                <input type="number" name="mileage" className="form-control" onChange={handleChange} required />
+              </div>
+              <div className="col-md-4 mb-3">
+                <label className="form-label">Nombre de places</label>
+                <input type="number" name="seats" className="form-control" onChange={handleChange} required />
+              </div>
 
-          <label className="mt-4 text-light">Prix (DH/jour)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Image</label>
+                <input type="file" name="image" accept="image/*" className="form-control" onChange={handleChange} />
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Aperçu</label><br />
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Aperçu" className="img-thumbnail" style={{ height: '150px' }} />
+                ) : (
+                  <span className="text-muted">Aucun fichier sélectionné</span>
+                )}
+              </div>
 
-          <label className="mt-4 text-light">Carburant</label>
-          <input
-            type="text"
-            className="form-control"
-            value={fuel}
-            onChange={(e) => setFuel(e.target.value)}
-            required
-          />
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Statut</label>
+                <select name="status" className="form-select" onChange={handleChange}>
+                  <option value="available">Disponible</option>
+                  <option value="rented">Louée</option>
+                  <option value="maintenance">Maintenance</option>
+                </select>
+              </div>
 
-          <label className="mt-4 text-light">Image</label>
-          <input
-            type="file"
-            className="form-control"
-            onChange={(e) => setImage(e.target.files[0])}
-            accept="image/*"
-            required
-          />
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Type de carburant</label>
+                <select name="fuel_type" className="form-select" onChange={handleChange} required>
+                  <option value="">-- Choisir --</option>
+                  <option value="essence">Essence</option>
+                  <option value="diesel">Diesel</option>
+                  <option value="électrique">Électrique</option>
+                  <option value="hybride">Hybride</option>
+                </select>
+              </div>
 
-          <div className="d-flex justify-content-center mt-3">
-            <button type="submit" className="btn btn-primary">
-              Ajouter la voiture
-            </button>
-          </div>
-        </form>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Transmission</label>
+                <select name="transmission" className="form-select" onChange={handleChange} required>
+                  <option value="">-- Choisir --</option>
+                  <option value="manuelle">Manuelle</option>
+                  <option value="automatique">Automatique</option>
+                </select>
+              </div>
+
+              <div className="col-12 mb-3">
+                <label className="form-label">Description</label>
+                <textarea name="description" className="form-control" rows="3" onChange={handleChange}></textarea>
+              </div>
+
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Date de création</label>
+                <input type="text" name="created_at" value={formData.created_at} className="form-control" readOnly />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-success">Ajouter voiture</button>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -23,13 +23,17 @@ export default function Modifier() {
     created_at: ''
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(true); // حالة التحميل
+  const [loading, setLoading] = useState(true);
 
+  // ⬇️ Charger les données existantes
   useEffect(() => {
     axios.get(`http://localhost:3000/cars/${id}`)
       .then(res => {
         setFormData(res.data);
+        setImagePreview(`http://localhost:3000/images/${res.data.image_url}`);
         setLoading(false);
       })
       .catch(err => {
@@ -39,6 +43,7 @@ export default function Modifier() {
       });
   }, [id]);
 
+  // ⬇️ Gérer les changements dans les champs
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -47,17 +52,36 @@ export default function Modifier() {
     }));
   };
 
+  // ⬇️ Gérer le changement d’image
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // ⬇️ Soumettre les modifications
   const handleSubmit = (e) => {
     e.preventDefault();
+    const data = new FormData();
 
-    axios.put(`http://localhost:3000/cars/${id}`, formData)
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+
+    if (selectedImage) {
+      data.append('image', selectedImage);
+    }
+
+    axios.put(`http://localhost:3000/cars/${id}`, data)
       .then(() => {
         setMessage('✅ Voiture mise à jour avec succès');
         setTimeout(() => navigate('/admin'), 1500);
       })
       .catch(err => {
         console.error('Erreur lors de la mise à jour:', err);
-        setMessage(' Erreur lors de la modification');
+        setMessage('❌ Erreur lors de la modification');
       });
   };
 
@@ -69,8 +93,20 @@ export default function Modifier() {
 
       {message && <div className="alert alert-info">{message}</div>}
 
-      <form onSubmit={handleSubmit}>
-        {/* Champs modifiables */}
+      {/* ✅ Aperçu de l'image actuelle */}
+      {imagePreview && (
+        <div className="mb-3 text-center">
+          <img
+            src={imagePreview}
+            alt="Voiture"
+            className="img-thumbnail"
+            style={{ maxHeight: '200px', objectFit: 'cover' }}
+          />
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
+        {/* Champs texte */}
         {[
           { label: "Marque", name: "brand" },
           { label: "Modèle", name: "model" },
@@ -79,7 +115,6 @@ export default function Modifier() {
           { label: "Année", name: "year", type: "number" },
           { label: "Kilométrage", name: "mileage", type: "number" },
           { label: "Nombre de places", name: "seats", type: "number" },
-          { label: "Image (URL)", name: "image_url" },
         ].map(({ label, name, type = "text" }) => (
           <div className="mb-3" key={name}>
             <label className="form-label">{label}</label>
@@ -94,19 +129,30 @@ export default function Modifier() {
           </div>
         ))}
 
+        {/* Champ image nouvelle */}
+        <div className="mb-3">
+          <label className="form-label">Changer l’image (optionnel)</label>
+          <input
+            type="file"
+            accept="image/*"
+            className="form-control"
+            onChange={handleImageChange}
+          />
+        </div>
+
         {/* Statut */}
         <div className="mb-3">
           <label className="form-label">Statut</label>
           <select className="form-select" name="status" value={formData.status} onChange={handleChange}>
-            <option value="available">available</option>
-            <option value="rented">rented</option>
-            <option value="maintenance">maintenance</option>
+            <option value="available">Disponible</option>
+            <option value="rented">Louée</option>
+            <option value="maintenance">Maintenance</option>
           </select>
         </div>
 
-        {/* available */}
+        {/* Disponible */}
         <div className="mb-3">
-          <label className="form-label">available ?</label>
+          <label className="form-label">Disponible ?</label>
           <div className="form-check form-switch">
             <input
               className="form-check-input"
@@ -119,7 +165,7 @@ export default function Modifier() {
           </div>
         </div>
 
-        {/* Carburant */}
+        {/* Type carburant */}
         <div className="mb-3">
           <label className="form-label">Type de carburant</label>
           <select className="form-select" name="fuel_type" value={formData.fuel_type} onChange={handleChange}>
@@ -153,7 +199,7 @@ export default function Modifier() {
           ></textarea>
         </div>
 
-        {/* Date création (lecture seule) */}
+        {/* Date création */}
         <div className="mb-3">
           <label className="form-label">Date de création</label>
           <input type="text" className="form-control" value={formData.created_at} readOnly />

@@ -43,7 +43,7 @@ export default function Carslistadmin() {
                         <div className="col-md-4 mb-4" key={car.id}>
                             <div className="card h-100 shadow-sm">
                                 <img
-                                    src={`http://localhost:5173/public/images/${car.image_url}`}
+                                    src={`http://localhost:3000/images/${car.image_url}`}
                                     className="card-img-top"
                                     alt={car.model}
                                     style={{ height: '200px', objectFit: 'cover' }}

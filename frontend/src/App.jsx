@@ -12,6 +12,8 @@ import Carslistadmin from './pages/Carslistadmin'
 import Modifier from './pages/Modifier'
 import AddCarForm from './pages/AjouterVoiture'
 import AjouterVoiture from './pages/AjouterVoiture'
+import Contact from './pages/contact'
+import Message from './pages/Message'
 
 
 function App() {
@@ -31,6 +33,9 @@ function App() {
       <Route path="/admin/cars" element={<Carslistadmin />} />
       <Route path="/modifier/:id" element={<Modifier />} />
        <Route path="/add" element={<AjouterVoiture/>} />
+        <Route path="/contact" element={<Contact/>} />
+        <Route path="/admin/messages" element={<Message/>} />
+
 </Routes>
 
     </>

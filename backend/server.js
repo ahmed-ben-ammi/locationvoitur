@@ -6,6 +6,7 @@ const path = require('path');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const { log } = require('console');
 
 const app = express();
 const port = 3000;
@@ -204,6 +205,34 @@ app.post('/login', (req, res) => {
     });
   });
 });
+app.post('/contact', (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Tous les champs sont requis.' });
+  }
+
+  const sql = 'INSERT INTO message (name, email, message) VALUES (?, ?, ?)';
+  db.query(sql, [name, email, message], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de l\'insertion :', err);
+      return res.status(500).json({ error: 'Erreur du serveur.' });
+    }
+
+    res.status(200).json({ message: 'Message bien reçu !' });
+  });
+});
+app.get('/messages', (req, res) => {
+  const sql = 'SELECT * FROM message ORDER BY id DESC';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des messages :', err);
+      return res.status(500).json({ error: 'Erreur serveur.' });
+    }
+    res.json(results);
+  });
+});
+
 
 
 //  Lancer le serveur
