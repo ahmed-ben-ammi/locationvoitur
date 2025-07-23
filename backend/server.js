@@ -232,6 +232,65 @@ app.get('/messages', (req, res) => {
     res.json(results);
   });
 });
+app.delete('/messages/:id', (req, res) => {
+  const id = req.params.id;
+  const sql = 'DELETE FROM message WHERE id = ?';
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error('err :', err);
+      return res.status(500).json({ error: 'err de suprimer' });
+    }
+    res.json({ message: 'message supprimer' });
+  });
+});
+
+
+
+
+// hadi laprtie dyal lhajz
+app.post('/rentals', (req, res) => {
+  const { user_id, car_id, start_date, end_date, total_price, status } = req.body;
+
+  const sql = 'INSERT INTO rentals (user_id, car_id, start_date, end_date, total_price, status, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())';
+  const values = [user_id, car_id, start_date, end_date, total_price, status];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Erreur lors de l'ajout :", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.status(200).json({ message: "Réservation ajoutée" });
+  });
+});
+
+// 🔽 GET : Récupérer toutes les réservations avec les noms des utilisateurs et des voitures
+app.get('/rentals', (req, res) => {
+  const sql = `
+    SELECT 
+      rentals.id,
+      rentals.start_date,
+      rentals.end_date,
+      rentals.status,
+      rentals.total_price,
+      users.name AS user_name,
+      CONCAT(cars.brand, ' ', cars.model) AS car_name
+    FROM rentals
+    JOIN users ON rentals.user_id = users.id
+    JOIN cars ON rentals.car_id = cars.id
+    ORDER BY rentals.id DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la récupération des réservations :", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.status(200).json(results);
+  });
+});
+
+
 
 
 

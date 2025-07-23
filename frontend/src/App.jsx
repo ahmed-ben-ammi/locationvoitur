@@ -14,6 +14,7 @@ import AddCarForm from './pages/AjouterVoiture'
 import AjouterVoiture from './pages/AjouterVoiture'
 import Contact from './pages/contact'
 import Message from './pages/Message'
+import AdminReservations from './pages/AdminReservations'
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
        <Route path="/add" element={<AjouterVoiture/>} />
         <Route path="/contact" element={<Contact/>} />
         <Route path="/admin/messages" element={<Message/>} />
+         <Route path="/admin/reservations" element={<AdminReservations/>} />
 
 </Routes>
 

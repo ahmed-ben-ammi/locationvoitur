@@ -33,14 +33,35 @@ export default function CarsList() {
       return;
     }
 
-    alert(`Réservation confirmée pour ${selectedCar.brand} ${selectedCar.model}
-Du: ${startDate} Au: ${endDate}`);
+    if (new Date(endDate) <= new Date(startDate)) {
+      alert("La date de retour doit être après la date de début !");
+      return;
+    }
 
-    // Ici tu peux faire axios.post vers backend avec selectedCar, startDate, endDate
+    const user = JSON.parse(localStorage.getItem('user'));
+    const start = new Date(startDate);
+const end = new Date(endDate);
+const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); // عدد الأيام
+const totalPrice = days * selectedCar.price_per_day;
 
-    setShowModal(false);
-    setStartDate('');
-    setEndDate('');
+    axios.post('http://localhost:3000/rentals', {
+      carId: selectedCar.id,
+      startDate,
+      endDate,
+      userId: user.id,
+      totalPrice,
+      status: 'pending'
+    })
+      .then(res => {
+        alert("Réservation enregistrée avec succès !");
+        setShowModal(false);
+        setStartDate('');
+        setEndDate('');
+      })
+      .catch(err => {
+        console.error("Erreur de réservation :", err);
+        alert("Erreur lors de la réservation");
+      });
   };
 
   return (
@@ -121,6 +142,7 @@ Du: ${startDate} Au: ${endDate}`);
                       type="date"
                       className="form-control"
                       value={startDate}
+                      min={new Date().toISOString().split("T")[0]}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
                   </div>
@@ -130,6 +152,7 @@ Du: ${startDate} Au: ${endDate}`);
                       type="date"
                       className="form-control"
                       value={endDate}
+                      min={startDate}
                       onChange={(e) => setEndDate(e.target.value)}
                     />
                   </div>

@@ -12,6 +12,7 @@ export default function Login() {
 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -32,14 +33,19 @@ export default function Login() {
       // Stocker l'utilisateur
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Redirection selon le rôle
-      const role = response.data.role;
-      if (role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/cars");
-      }
+      // ✅ Afficher le modal de succès
+      setShowSuccessModal(true);
 
+      // ⏳ Attendre 2 secondes puis rediriger
+      const role = response.data.role;
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        if (role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/cars");
+        }
+      }, 2000);
     } catch (err) {
       if (err.response) {
         console.error(err);
@@ -51,45 +57,64 @@ export default function Login() {
   };
 
   return (
-<div>
-  <Nav/>
+    <div>
+      <Nav />
       <div className="container mt-5" style={{ maxWidth: '400px' }}>
-      <h2>Connexion</h2>
-      {message && <div className="alert alert-success">{message}</div>}
-      {error && <div className="alert alert-danger">{error}</div>}
+        <h2>Connexion</h2>
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            className="form-control"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <label>Mot de passe</label>
+            <input
+              type="password"
+              name="password"
+              className="form-control"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <NavLink to="/register" className="d-block mb-3 text-decoration-none text-primary">
+            👉 Créer un compte
+          </NavLink>
+
+          <button type="submit" className="btn btn-primary">Se connecter</button>
+        </form>
+      </div>
+
+      {/* ✅ MODAL DE SUCCÈS */}
+      {showSuccessModal && (
+        <div className="modal show fade d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content text-center p-4">
+              <div className="mb-3">
+                <div className="rounded-circle bg-success text-white mx-auto d-flex justify-content-center align-items-center"
+                     style={{ width: "50px", height: "50px", fontSize: "24px" }}>
+                  ✓
+                </div>
+              </div>
+              <h5 className="modal-title fw-bold">Connexion réussie</h5>
+              <p>Bienvenue ! Redirection en cours...</p>
+              {/* Pas de bouton OK ici puisque c'est automatique */}
+            </div>
+          </div>
         </div>
-
-        <div className="mb-3">
-          <label>Mot de passe</label>
-          <input
-            type="password"
-            name="password"
-            className="form-control"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <NavLink to="/register" className="d-block mb-3 text-decoration-none text-primary">
-          👉 Créer un compte
-        </NavLink>
-
-        <button type="submit" className="btn btn-primary">Se connecter</button>
-      </form>
+      )}
     </div>
-</div>
   );
 }
+
