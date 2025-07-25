@@ -28,15 +28,18 @@ export default function Login() {
 
     try {
       const response = await axios.post('http://localhost:3000/login', formData);
-      setMessage(response.data.message);
+      setMessage(response.data);
 
-      // Stocker l'utilisateur
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      // 🔍 DEBUG pour vérifier le contenu
+      console.log("Réponse complète :", response.data);
 
-      // ✅ Afficher le modal de succès
+      // 🗂️ Stockage de l'utilisateur selon structure
+      localStorage.setItem("user", JSON.stringify(response.data));
+
+      // ✅ Affichage du modal
       setShowSuccessModal(true);
 
-      // ⏳ Attendre 2 secondes puis rediriger
+      // ⏳ Redirection après un court délai
       const role = response.data.role;
       setTimeout(() => {
         setShowSuccessModal(false);
@@ -109,7 +112,6 @@ export default function Login() {
               </div>
               <h5 className="modal-title fw-bold">Connexion réussie</h5>
               <p>Bienvenue ! Redirection en cours...</p>
-              {/* Pas de bouton OK ici puisque c'est automatique */}
             </div>
           </div>
         </div>
@@ -117,4 +119,3 @@ export default function Login() {
     </div>
   );
 }
-

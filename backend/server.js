@@ -181,30 +181,48 @@ app.post('/register', async (req, res) => {
 // Connexion
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
+  console.log("Reçu login request avec:", email, password);
+
   if (!email || !password) {
     return res.status(400).json({ message: 'Veuillez remplir tous les champs' });
   }
 
   const sql = `SELECT * FROM users WHERE email = ? LIMIT 1`;
   db.query(sql, [email], async (err, results) => {
-    if (err) return res.status(500).json({ error: 'Erreur serveur' });
-    if (results.length === 0) return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+    if (err) {
+      console.error(" Erreur MySQL:", err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
 
-    const user = results[0];
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
+    if (results.length === 0) {
+      console.log(" Aucun utilisateur trouvé avec cet email");
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
 
-    res.status(200).json({
-      userId: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    });
+    const user = results[0];
+    console.log("🧑 Utilisateur trouvé:", user);
+
+    try {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        console.log("🔐 Mot de passe incorrect");
+        return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+      }
+
+      res.status(200).json({
+        
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      });
+    } catch (err) {
+      console.error("⚠️ Erreur dans le bcrypt.compare:", err);
+      res.status(500).json({ error: 'Erreur serveur (bcrypt)' });
+    }
   });
 });
+
 app.post('/contact', (req, res) => {
   const { name, email, message } = req.body;
 
@@ -295,6 +313,25 @@ app.get('/rentals', (req, res) => {
 
 
 //  Lancer le serveur
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  const sql = 'SELECT * FROM users WHERE email = ?';
+  db.query(sql, [email], async (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erreur serveur' });
+    if (results.length === 0) return res.status(401).json({ error: 'Email non trouvé' });
+
+    const user = results[0];
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) return res.status(401).json({ error: 'Mot de passe incorrect' });
+
+    // ✅ ENVOYER user SANS password
+    const { password: _, ...userWithoutPassword } = user;
+    res.json({ message: 'Connexion réussie', user: userWithoutPassword });
+  });
+});
+
 
 app.listen(port, () => {
   console.log(`Serveur lancé sur : http://localhost:${port}`);
