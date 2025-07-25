@@ -331,6 +331,23 @@ app.post('/login', (req, res) => {
     res.json({ message: 'Connexion réussie', user: userWithoutPassword });
   });
 });
+// Exemple de route dans Express
+app.get('/rentals/user/:userId', (req, res) => {
+  const { userId } = req.params;
+  const sql = `
+    SELECT rentals.*, users.name AS user_name, cars.brand AS car_name
+    FROM rentals
+    JOIN users ON rentals.user_id = users.id
+    JOIN cars ON rentals.car_id = cars.id
+    WHERE user_id = ?
+    ORDER BY rentals.created_at DESC
+  `;
+  db.query(sql, [userId], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erreur serveur' });
+    res.json(results);
+  });
+});
+
 
 
 app.listen(port, () => {

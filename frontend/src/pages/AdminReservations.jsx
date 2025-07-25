@@ -1,58 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Saidbar from '../components/Saidbar';
+import Nav from '../components/Nav'; // navbar pour l'utilisateur
 
-export default function AdminReservations() {
+export default function MesReservations() {
   const [reservations, setReservations] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    fetchReservations();
+    // Récupération du user depuis localStorage (ou selon ta logique d'auth)
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.id) {
+      setUserId(user.id);
+      fetchReservations(user.id);
+    }
   }, []);
 
-  const fetchReservations = () => {
-    axios.get('http://localhost:3000/rentals')
+  const fetchReservations = (id) => {
+    axios.get(`http://localhost:3000/rentals/user/${id}`)
       .then((res) => setReservations(res.data))
-      .catch((err) => console.error("Erreur lors de la récupération des réservations :", err));
-  };
-
-  const handleStatusChange = (id, newStatus) => {
-    axios.put(`http://localhost:3000/rentals/${id}`, { status: newStatus })
-      .then(() => {
-        fetchReservations(); // rafraîchir les données après modification
-      })
-      .catch((err) => console.error("Erreur lors de la mise à jour du statut :", err));
+      .catch((err) => console.error("Erreur lors du chargement des réservations :", err));
   };
 
   return (
-    
-<div>
-      <Saidbar />
-        <div className="d-flex">
-    
+    <div>
+      <Nav />
       <div className="container mt-4">
-        <h2 className="text-center mb-4">📋 Liste des Réservations</h2>
+        <h2 className="text-center mb-4">🧾 Mes Réservations</h2>
 
         {reservations.length === 0 ? (
-          <p className="text-center">Aucune réservation trouvée.</p>
+          <p className="text-center">Vous n'avez encore aucune réservation.</p>
         ) : (
           <table className="table table-bordered">
             <thead className="table-light">
               <tr>
                 <th>#</th>
-                <th>Nom d'utilisateur</th>
                 <th>Voiture</th>
-                <th>Du</th>
-                <th>Au</th>
+                <th>Date début</th>
+                <th>Date fin</th>
                 <th>Prix total</th>
                 <th>Statut</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {reservations.map((rental, index) => (
                 <tr key={rental.id}>
                   <td>{index + 1}</td>
-                  <td>{rental.user_name || rental.user_id}</td>
                   <td>{rental.car_name || rental.car_id}</td>
                   <td>{rental.start_date}</td>
                   <td>{rental.end_date}</td>
@@ -66,24 +58,6 @@ export default function AdminReservations() {
                       {rental.status}
                     </span>
                   </td>
-                  <td>
-                    {rental.status === 'pending' && (
-                      <>
-                        <button
-                          className="btn btn-success btn-sm me-2"
-                          onClick={() => handleStatusChange(rental.id, 'confirmed')}
-                        >
-                          Confirmer
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleStatusChange(rental.id, 'rejected')}
-                        >
-                          Rejeter
-                        </button>
-                      </>
-                    )}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -91,6 +65,5 @@ export default function AdminReservations() {
         )}
       </div>
     </div>
-</div>
   );
 }
