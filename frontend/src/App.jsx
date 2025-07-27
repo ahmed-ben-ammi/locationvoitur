@@ -15,7 +15,7 @@ import AjouterVoiture from './pages/AjouterVoiture'
 import Contact from './pages/contact'
 import Message from './pages/Message'
 import AdminReservations from './pages/AdminReservations'
-import UserReservations from './pages/UserReservations'
+import UserReservations from './pages/MesReservations'
 
 
 function App() {

@@ -332,6 +332,7 @@ app.post('/login', (req, res) => {
   });
 });
 // Exemple de route dans Express
+
 app.get('/rentals/user/:userId', (req, res) => {
   const { userId } = req.params;
   const sql = `
@@ -347,6 +348,24 @@ app.get('/rentals/user/:userId', (req, res) => {
     res.json(results);
   });
 });
+
+
+app.put('/rentals/:id', (req, res) => {
+  const rentalId = req.params.id;
+  const { status } = req.body;
+
+  if (!status) return res.status(400).json({ error: 'Le champ status est requis' });
+
+  const sql = 'UPDATE rentals SET status = ? WHERE id = ?';
+  db.query(sql, [status, rentalId], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erreur serveur' });
+    if (results.affectedRows === 0) return res.status(404).json({ error: 'Réservation non trouvée' });
+    res.json({ message: 'Statut mis à jour avec succès' });
+  });
+});
+
+// confirm
+// reject
 
 
 

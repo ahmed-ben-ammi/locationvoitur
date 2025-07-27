@@ -18,7 +18,7 @@ export default function CarDetail() {
 
   const handleReservation = async (e) => {
     e.preventDefault()
-    const userRaw = JSON.parse(localStorage.getItem('userS'))
+    const userRaw = JSON.parse(localStorage.getItem('user'))
     console.log("user connected ",userRaw);
     
 
