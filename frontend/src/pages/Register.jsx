@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Nav from '../components/Nav';
+import { useNavigate } from 'react-router-dom'; // ✅ ضروري الاستيراد
 
 export default function Register() {
+  const navigate = useNavigate(); // ✅ تعريف navigate
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,6 +46,13 @@ export default function Register() {
       const response = await axios.post('http://localhost:3000/register', formData);
       setMessage(response.data.message);
       setShowSuccessModal(true);
+
+      
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate('/login');
+      }, 2000);
+
     } catch (err) {
       if (err.response) {
         setError(err.response.data.message || 'Erreur lors de l’inscription');

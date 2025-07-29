@@ -282,31 +282,31 @@ app.post('/rentals', (req, res) => {
   });
 });
 
-// 🔽 GET : Récupérer toutes les réservations avec les noms des utilisateurs et des voitures
-app.get('/rentals', (req, res) => {
-  const sql = `
-    SELECT 
-      rentals.id,
-      rentals.start_date,
-      rentals.end_date,
-      rentals.status,
-      rentals.total_price,
-      users.name AS user_name,
-      CONCAT(cars.brand, ' ', cars.model) AS car_name
-    FROM rentals
-    JOIN users ON rentals.user_id = users.id
-    JOIN cars ON rentals.car_id = cars.id
-    ORDER BY rentals.id DESC
-  `;
+// // 🔽 GET : Récupérer toutes les réservations avec les noms des utilisateurs et des voitures
+// app.get('/rentals', (req, res) => {
+//   const sql = `
+//     SELECT 
+//       rentals.id,
+//       rentals.start_date,
+//       rentals.end_date,
+//       rentals.status,
+//       rentals.total_price,
+//       users.name AS user_name,
+//       CONCAT(cars.brand, ' ', cars.model) AS car_name
+//     FROM rentals
+//     JOIN users ON rentals.user_id = users.id
+//     JOIN cars ON rentals.car_id = cars.id
+//     ORDER BY rentals.id DESC
+//   `;
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Erreur lors de la récupération des réservations :", err);
-      return res.status(500).json({ error: "Erreur serveur" });
-    }
-    res.status(200).json(results);
-  });
-});
+//   db.query(sql, (err, results) => {
+//     if (err) {
+//       console.error("Erreur lors de la récupération des réservations :", err);
+//       return res.status(500).json({ error: "Erreur serveur" });
+//     }
+//     res.status(200).json(results);
+//   });
+// });
 
 
 
@@ -336,7 +336,7 @@ app.post('/login', (req, res) => {
 app.get('/rentals/user/:userId', (req, res) => {
   const { userId } = req.params;
   const sql = `
-    SELECT rentals.*, users.name AS user_name, cars.brand AS car_name
+    SELECT rentals.*, users.name AS user_name, cars.brand AS car_name, cars.image_url AS image
     FROM rentals
     JOIN users ON rentals.user_id = users.id
     JOIN cars ON rentals.car_id = cars.id
@@ -350,22 +350,75 @@ app.get('/rentals/user/:userId', (req, res) => {
 });
 
 
-app.put('/rentals/:id', (req, res) => {
+
+// ✅ Confirmer la réservation
+app.put('/confirm-rentals/:id', (req, res) => {
   const rentalId = req.params.id;
-  const { status } = req.body;
-
-  if (!status) return res.status(400).json({ error: 'Le champ status est requis' });
-
-  const sql = 'UPDATE rentals SET status = ? WHERE id = ?';
-  db.query(sql, [status, rentalId], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Erreur serveur' });
-    if (results.affectedRows === 0) return res.status(404).json({ error: 'Réservation non trouvée' });
-    res.json({ message: 'Statut mis à jour avec succès' });
+  db.query('UPDATE rentals SET status = ? WHERE id = ?', ['confirmed', rentalId], (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.send({ success: true });
   });
 });
 
-// confirm
-// reject
+// ✅ Rejeter la réservation
+app.put('/reject-rentals/:id', (req, res) => {
+  const rentalId = req.params.id;
+  db.query('UPDATE rentals SET status = ? WHERE id = ?', ['cancelled', rentalId], (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.send({ success: true });
+  });
+});
+// ✅ Route: جميع الحجزات مع صورة الطوموبيل
+app.get('/rentals', (req, res) => {
+  const sql = `
+    SELECT 
+      rentals.id,
+      rentals.user_id,
+      rentals.car_id,
+      rentals.start_date,
+      rentals.end_date,
+      rentals.total_price,
+      rentals.status,
+      rentals.created_at,
+      users.name AS user_name,
+      cars.brand,
+      cars.model,
+      cars.image_url
+    FROM rentals
+    JOIN users ON rentals.user_id = users.id
+    JOIN cars ON rentals.car_id = cars.id
+    ORDER BY rentals.created_at DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la récupération des réservations avec images:", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+
+    // Ajouter chemin complet de l'image
+    const baseUrl = `http://localhost:${port}/images/`;
+    const data = results.map(rental => ({
+      ...rental,
+      image_url: rental.image_url ? `${baseUrl}${rental.image_url}` : null
+    }));
+
+    res.status(200).json(data);
+  });
+});
+
+
+app.get('/messages/unread/count', (req, res) => {
+  const sql = 'SELECT COUNT(*) AS count FROM message WHERE lu = FALSE';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Erreur de récupération du nombre de messages non lus :', err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+    res.json(result[0]);
+  });
+});
+
 
 
 

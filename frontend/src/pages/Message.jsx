@@ -8,6 +8,10 @@ export default function Message() {
 
   useEffect(() => {
     fetchMessages();
+
+    // تعليم كل الرسائل كمقروءة بعد جلبهم
+    axios.put('http://localhost:3000/messages/mark-as-read')
+      .catch((err) => console.error('Erreur lors du marquage comme lu:', err));
   }, []);
 
   const fetchMessages = () => {

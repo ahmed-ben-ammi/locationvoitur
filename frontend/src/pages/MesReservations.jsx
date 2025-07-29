@@ -16,7 +16,10 @@ console.log(userId);
 
   useEffect(() => {
     axios.get(`http://localhost:3000/rentals/user/${userId}`)
-      .then((res) => setReservations(res.data))
+      .then((res) => { 
+        console.log(res.data);
+
+        setReservations(res.data)})
       .catch((err) => console.error('Erreur de chargement :', err));
   }, []);
 
@@ -34,7 +37,13 @@ console.log(userId);
               <div className="col-md-6 col-lg-4 mb-4" key={rental.id}>
                 <div className="card h-100 shadow">
                   <div className="card-body">
-                    <h5 className="card-title">🚗 {rental.car_name}</h5>
+                                      <img
+   src={'http://localhost:3000/images/'+ rental.image}  alt={rental.car_name}
+  
+  className="img-fluid mb-3"
+  style={{ maxHeight: '200px', objectFit: 'cover', width: '100%' }}
+/>
+                    <h5 className="card-title"> {rental.car_name}</h5>
                     <p className="card-text"><strong>Du :</strong> {new Date(rental.start_date).toLocaleDateString()}</p>
                     <p className="card-text"><strong>Au :</strong> {new Date(rental.end_date).toLocaleDateString()}</p>
                     <p className="card-text"><strong>Prix total :</strong> {rental.total_price} DH</p>

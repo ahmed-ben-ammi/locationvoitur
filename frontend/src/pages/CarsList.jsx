@@ -5,6 +5,7 @@ import Nav from '../components/Nav';
 
 export default function CarsList() {
   const [cars, setCars] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCar, setSelectedCar] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [startDate, setStartDate] = useState('');
@@ -40,9 +41,9 @@ export default function CarsList() {
 
     const user = JSON.parse(localStorage.getItem('user'));
     const start = new Date(startDate);
-const end = new Date(endDate);
-const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); // عدد الأيام
-const totalPrice = days * selectedCar.price_per_day;
+    const end = new Date(endDate);
+    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); // عدد الأيام
+    const totalPrice = days * selectedCar.price_per_day;
 
     axios.post('http://localhost:3000/rentals', {
       carId: selectedCar.id,
@@ -64,13 +65,29 @@ const totalPrice = days * selectedCar.price_per_day;
       });
   };
 
+  const filteredCars = cars.filter(car =>
+    (car.brand + ' ' + car.model).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <Nav />
       <div className="container mt-4">
         <h2 className="text-center mb-4">Liste des Voitures</h2>
+
+        {/* Champ de recherche */}
+        <div className="mb-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher par marque ou modèle..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
         <div className="row">
-          {cars.map(car => (
+          {filteredCars.map(car => (
             <div className="col-md-4 mb-4" key={car.id}>
               <div className="card h-100 shadow-sm">
                 <img

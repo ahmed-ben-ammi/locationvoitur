@@ -1,15 +1,20 @@
-// src/components/SidebarAdmin.jsx
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
 
 export default function Saidbar() {
-  return (
+  const [unreadCount, setUnreadCount] = useState(0);
 
+  useEffect(() => {
+    axios.get("http://localhost:3000/messages/unread/count")
+      .then(res => setUnreadCount(res.data.count))
+      .catch(err => console.error("Erreur fetch unread messages:", err));
+  }, []);
+
+  return (
     <>
       {/* Bouton pour ouvrir le sidebar */}
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between"
-      }}>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
         <button
           className="btn btn-outline-dark m-3 d-md-"
           type="button"
@@ -71,6 +76,9 @@ export default function Saidbar() {
             <li className="nav-item">
               <NavLink to="/admin/messages" className="nav-link text-white">
                 💬 Messages
+                {unreadCount > 0 && (
+                  <span className="badge bg-danger ms-2">{unreadCount}</span>
+                )}
               </NavLink>
             </li>
             <li className="nav-item mt-3">
