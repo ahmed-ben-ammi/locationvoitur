@@ -1,29 +1,37 @@
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import {
+  FaSignInAlt,
+  FaUserPlus,
+  FaSignOutAlt,
+  FaHome,
+  FaCarSide,
+  FaCalendarCheck,
+  FaEnvelope,
+} from 'react-icons/fa';
 
 export default function Nav() {
   const navigate = useNavigate();
-  const location = useLocation(); //bach nra9bo taghyorat dyal sfha
+  const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-//  kola mra taytbdl rout tant2kd wach user mazal dakhl
   useEffect(() => {
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem('user');
     setIsLoggedIn(!!user);
-  }, [location]); // th99 mli tbdl sfha
+  }, [location]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
-    navigate("/login");
+    navigate('/login');
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow sticky-top">
-      <div className="container">
-        <NavLink className="navbar-brand d-flex align-items-center" to="/">
-          <span className="me-2">🚗</span>
-          <span className="fw-bold">AutoRent</span>
+    <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+      <div className="container-fluid">
+        <NavLink className="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" to="/">
+          <FaCarSide />
+          Location Voitures
         </NavLink>
 
         <button
@@ -32,54 +40,63 @@ export default function Nav() {
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
         >
-          <span className="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon" />
         </button>
 
-        <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul className="navbar-nav">
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <NavLink to="/" className="nav-link">
+              <NavLink className="nav-link d-flex align-items-center gap-2" to="/">
+                <FaHome />
                 Accueil
               </NavLink>
             </li>
 
             <li className="nav-item">
-              <NavLink to="/cars" className="nav-link">
-                Véhicules
+              <NavLink className="nav-link d-flex align-items-center gap-2" to="/cars">
+                <FaCarSide />
+                Voitures
               </NavLink>
             </li>
 
-            {!isLoggedIn ? (
-              <>
-                <li className="nav-item">
-                  <NavLink to="/register" className="nav-link">
-                    Register
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/login" className="nav-link">
-                    Login
-                  </NavLink>
-                </li>
-              </>
-            ) : (
-              <li className="nav-item">
-                <button
-                  onClick={handleLogout}
-                  className="nav-link btn btn-link text-white"
-                  style={{ cursor: "pointer", textDecoration: "none" }}
-                >
-                  Logout
-                </button>
-              </li>
-            )}
+            <li className="nav-item">
+              <NavLink className="nav-link d-flex align-items-center gap-2" to="/mes-reservations">
+                <FaCalendarCheck />
+                Mes Réservations
+              </NavLink>
+            </li>
 
             <li className="nav-item">
-              <NavLink to="/contact" className="nav-link">
+              <NavLink className="nav-link d-flex align-items-center gap-2" to="/contact">
+                <FaEnvelope />
                 Contact
               </NavLink>
             </li>
           </ul>
+
+          <div className="d-flex gap-3">
+            {!isLoggedIn ? (
+              <>
+                <NavLink to="/login" className="btn btn-outline-primary d-flex align-items-center gap-2">
+                  <FaSignInAlt />
+                  Login
+                </NavLink>
+
+                <NavLink to="/register" className="btn btn-primary text-white d-flex align-items-center gap-2">
+                  <FaUserPlus />
+                  Register
+                </NavLink>
+              </>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="btn btn-danger d-flex align-items-center gap-2"
+              >
+                <FaSignOutAlt />
+                Logout
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </nav>

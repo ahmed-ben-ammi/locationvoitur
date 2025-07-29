@@ -15,10 +15,10 @@ export default function Login() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -30,16 +30,9 @@ export default function Login() {
       const response = await axios.post('http://localhost:3000/login', formData);
       setMessage(response.data);
 
-      // 🔍 DEBUG pour vérifier le contenu
-      console.log("Réponse complète :", response.data);
-
-      // 🗂️ Stockage de l'utilisateur selon structure
       localStorage.setItem("user", JSON.stringify(response.data));
-
-      // ✅ Affichage du modal
       setShowSuccessModal(true);
 
-      // ⏳ Redirection après un court délai
       const role = response.data.role;
       setTimeout(() => {
         setShowSuccessModal(false);
@@ -51,7 +44,6 @@ export default function Login() {
       }, 2000);
     } catch (err) {
       if (err.response) {
-        console.error(err);
         setError(err.response.data.message || 'Erreur lors de la connexion');
       } else {
         setError('Erreur de connexion au serveur');
@@ -60,53 +52,70 @@ export default function Login() {
   };
 
   return (
-    <div>
+    <>
       <Nav />
-      <div className="container mt-5" style={{ maxWidth: '400px' }}>
-        <h2>Connexion</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
+      <div className="container mt-5" style={{ maxWidth: '420px' }}>
+        <h2 className="text-center mb-4 text-primary fw-bold">Connexion</h2>
 
-        <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="alert alert-danger text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
-            <label>Email</label>
+            <label htmlFor="email" className="form-label fw-semibold">Email</label>
             <input
+              id="email"
               type="email"
               name="email"
               className="form-control"
               value={formData.email}
               onChange={handleChange}
+              placeholder="exemple@mail.com"
               required
             />
           </div>
 
-          <div className="mb-3">
-            <label>Mot de passe</label>
+          <div className="mb-4">
+            <label htmlFor="password" className="form-label fw-semibold">Mot de passe</label>
             <input
+              id="password"
               type="password"
               name="password"
               className="form-control"
               value={formData.password}
               onChange={handleChange}
+              placeholder="********"
               required
             />
           </div>
 
-          <NavLink to="/register" className="d-block mb-3 text-decoration-none text-primary">
+          <NavLink to="/register" className="d-block mb-3 text-decoration-none text-primary fw-semibold">
             👉 Créer un compte
           </NavLink>
 
-          <button type="submit" className="btn btn-primary">Se connecter</button>
+          <button type="submit" className="btn btn-primary w-100 fw-semibold">
+            Se connecter
+          </button>
         </form>
       </div>
 
-      {/* ✅ MODAL DE SUCCÈS */}
+      {/* Modal Succès */}
       {showSuccessModal && (
-        <div className="modal show fade d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+        <div className="modal show fade d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content text-center p-4">
+            <div className="modal-content text-center p-4 position-relative">
+              <button
+                type="button"
+                className="btn-close position-absolute top-0 end-0 m-2"
+                aria-label="Close"
+                onClick={() => setShowSuccessModal(false)}
+              />
               <div className="mb-3">
                 <div className="rounded-circle bg-success text-white mx-auto d-flex justify-content-center align-items-center"
-                     style={{ width: "50px", height: "50px", fontSize: "24px" }}>
+                  style={{ width: "60px", height: "60px", fontSize: "28px" }}>
                   ✓
                 </div>
               </div>
@@ -116,6 +125,6 @@ export default function Login() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

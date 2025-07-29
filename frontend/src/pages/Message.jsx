@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Nav from '../components/Nav';
 import Saidbar from '../components/Saidbar';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 
 export default function Message() {
   const [messages, setMessages] = useState([]);
@@ -9,7 +10,6 @@ export default function Message() {
   useEffect(() => {
     fetchMessages();
 
-    // تعليم كل الرسائل كمقروءة بعد جلبهم
     axios.put('http://localhost:3000/messages/mark-as-read')
       .catch((err) => console.error('Erreur lors du marquage comme lu:', err));
   }, []);
@@ -43,19 +43,23 @@ export default function Message() {
             <div className="row">
               {messages.map((msg, index) => (
                 <div className="col-md-6 mb-4" key={msg.id}>
-                  <div className="card shadow-sm">
+                  <div className="card shadow-sm border-0">
                     <div className="card-body">
                       <h5 className="card-title">{msg.name}</h5>
                       <h6 className="card-subtitle mb-2 text-muted">{msg.email}</h6>
                       <p className="card-text">{msg.message}</p>
-                      <span className="badge bg-primary me-2">Message #{index + 1}</span>
-                      <button
-                        className="btn btn-danger btn-sm mr-2"
-                        style={{marginLeft:"500px"}}
-                        onClick={() => deleteMessage(msg.id)}
-                      >
-                        Supprimer
-                      </button>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="badge bg-primary">Message #{index + 1}</span>
+                        <div>
+                        
+                          <FaTrash
+                            className="text-danger"
+                            style={{ cursor: 'pointer' }}
+                            title="Supprimer"
+                            onClick={() => deleteMessage(msg.id)}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

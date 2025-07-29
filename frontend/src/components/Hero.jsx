@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 export default function Hero() {
   return (
     <section
@@ -33,8 +35,14 @@ export default function Hero() {
               facilement et profitez de tarifs compétitifs avec un service client exceptionnel.
             </p>
             <div className="d-flex gap-3 flex-wrap">
-              <button className="btn btn-light text-primary fw-semibold">Contact</button>
-              <button className="btn btn-outline-light">Voir les Véhicules</button>
+              <NavLink style={{backgroundColor:'white' , color:"black"}} className="nav-link d-flex align-items-center gap-2" to="/contact">
+
+                Contact
+              </NavLink>
+                          <NavLink style={{backgroundColor:'white' ,color:"black"}} className="nav-link d-flex align-items-center gap-2" to="/cars">
+                            
+                            Voitures
+                          </NavLink>
             </div>
           </div>
         </div>

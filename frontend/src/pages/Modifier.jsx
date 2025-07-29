@@ -28,7 +28,6 @@ export default function Modifier() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // ⬇️ Charger les données existantes
   useEffect(() => {
     axios.get(`http://localhost:3000/cars/${id}`)
       .then(res => {
@@ -43,7 +42,6 @@ export default function Modifier() {
       });
   }, [id]);
 
-  // ⬇️ Gérer les changements dans les champs
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -52,7 +50,6 @@ export default function Modifier() {
     }));
   };
 
-  // ⬇️ Gérer le changement d’image
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -61,7 +58,6 @@ export default function Modifier() {
     }
   };
 
-  // ⬇️ Soumettre les modifications
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = new FormData();
@@ -85,127 +81,173 @@ export default function Modifier() {
       });
   };
 
-  if (loading) return <div className="text-center mt-5">Chargement...</div>;
+  if (loading) return <div className="text-center mt-5 fs-4">Chargement...</div>;
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Modifier la voiture</h2>
+    <div className="container mt-5 mb-5" style={{ maxWidth: '700px' }}>
+      <h2 className="mb-4 text-center text-primary">Modifier la voiture</h2>
 
-      {message && <div className="alert alert-info">{message}</div>}
+      {message && (
+        <div className={`alert ${message.includes('✅') ? 'alert-success' : 'alert-danger'} text-center`}>
+          {message}
+        </div>
+      )}
 
-      {/* ✅ Aperçu de l'image actuelle */}
       {imagePreview && (
-        <div className="mb-3 text-center">
+        <div className="mb-4 text-center">
           <img
             src={imagePreview}
             alt="Voiture"
-            className="img-thumbnail"
-            style={{ maxHeight: '200px', objectFit: 'cover' }}
+            className="img-thumbnail rounded"
+            style={{ maxHeight: '220px', objectFit: 'cover', width: '100%' }}
           />
         </div>
       )}
 
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        {/* Champs texte */}
-        {[
-          { label: "Marque", name: "brand" },
-          { label: "Modèle", name: "model" },
-          { label: "Immatriculation", name: "registration" },
-          { label: "Prix par jour (DH)", name: "price_per_day", type: "number" },
-          { label: "Année", name: "year", type: "number" },
-          { label: "Kilométrage", name: "mileage", type: "number" },
-          { label: "Nombre de places", name: "seats", type: "number" },
-        ].map(({ label, name, type = "text" }) => (
-          <div className="mb-3" key={name}>
-            <label className="form-label">{label}</label>
-            <input
-              type={type}
-              className="form-control"
-              name={name}
-              value={formData[name]}
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="needs-validation" noValidate>
+        {/* Group 1: Infos générales */}
+        <div className="row g-3 mb-3">
+          {[
+            { label: "Marque", name: "brand" },
+            { label: "Modèle", name: "model" },
+            { label: "Immatriculation", name: "registration" },
+          ].map(({ label, name }) => (
+            <div className="col-12" key={name}>
+              <label className="form-label fw-semibold">{label}</label>
+              <input
+                type="text"
+                className="form-control"
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                required
+              />
+              <div className="invalid-feedback">Ce champ est requis.</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Group 2: Détails techniques */}
+        <div className="row g-3 mb-3">
+          {[
+            { label: "Prix par jour (DH)", name: "price_per_day", type: "number" },
+            { label: "Année", name: "year", type: "number" },
+            { label: "Kilométrage (km)", name: "mileage", type: "number" },
+            { label: "Nombre de places", name: "seats", type: "number" },
+          ].map(({ label, name, type }) => (
+            <div className="col-md-6" key={name}>
+              <label className="form-label fw-semibold">{label}</label>
+              <input
+                type={type}
+                className="form-control"
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                required
+                min="0"
+              />
+              <div className="invalid-feedback">Veuillez entrer une valeur valide.</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Group 3: Sélections */}
+        <div className="row g-3 mb-4">
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Type de carburant</label>
+            <select
+              className="form-select"
+              name="fuel_type"
+              value={formData.fuel_type}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">-- Choisir --</option>
+              <option value="essence">Essence</option>
+              <option value="diesel">Diesel</option>
+              <option value="electrique">Électrique</option>
+              <option value="hybride">Hybride</option>
+            </select>
+            <div className="invalid-feedback">Veuillez sélectionner un type de carburant.</div>
           </div>
-        ))}
 
-        {/* Champ image nouvelle */}
-        <div className="mb-3">
-          <label className="form-label">Changer l’image (optionnel)</label>
-          <input
-            type="file"
-            accept="image/*"
-            className="form-control"
-            onChange={handleImageChange}
-          />
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Transmission</label>
+            <select
+              className="form-select"
+              name="transmission"
+              value={formData.transmission}
+              onChange={handleChange}
+              required
+            >
+              <option value="">-- Choisir --</option>
+              <option value="automatique">Automatique</option>
+              <option value="manuelle">Manuelle</option>
+            </select>
+            <div className="invalid-feedback">Veuillez sélectionner une transmission.</div>
+          </div>
         </div>
 
         {/* Statut */}
         <div className="mb-3">
-          <label className="form-label">Statut</label>
-          <select className="form-select" name="status" value={formData.status} onChange={handleChange}>
+          <label className="form-label fw-semibold">Statut</label>
+          <select
+            className="form-select"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            required
+          >
             <option value="available">Disponible</option>
             <option value="rented">Louée</option>
             <option value="maintenance">Maintenance</option>
           </select>
+          <div className="invalid-feedback">Veuillez sélectionner un statut.</div>
         </div>
 
         {/* Disponible */}
-        <div className="mb-3">
-          <label className="form-label">Disponible ?</label>
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              name="available"
-              checked={formData.available}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">{formData.available ? 'Oui' : 'Non'}</label>
-          </div>
-        </div>
-
-        {/* Type carburant */}
-        <div className="mb-3">
-          <label className="form-label">Type de carburant</label>
-          <select className="form-select" name="fuel_type" value={formData.fuel_type} onChange={handleChange}>
-            <option value="">-- Choisir --</option>
-            <option value="essence">Essence</option>
-            <option value="diesel">Diesel</option>
-            <option value="electrique">Électrique</option>
-            <option value="hybride">Hybride</option>
-          </select>
-        </div>
-
-        {/* Transmission */}
-        <div className="mb-3">
-          <label className="form-label">Transmission</label>
-          <select className="form-select" name="transmission" value={formData.transmission} onChange={handleChange}>
-            <option value="">-- Choisir --</option>
-            <option value="automatique">Automatique</option>
-            <option value="manuelle">Manuelle</option>
-          </select>
+        <div className="form-check form-switch mb-4">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            name="available"
+            checked={formData.available}
+            onChange={handleChange}
+            id="availableSwitch"
+          />
+          <label className="form-check-label fw-semibold" htmlFor="availableSwitch">
+            Disponible ?
+          </label>
         </div>
 
         {/* Description */}
-        <div className="mb-3">
-          <label className="form-label">Description</label>
+        <div className="mb-4">
+          <label className="form-label fw-semibold">Description</label>
           <textarea
             className="form-control"
             name="description"
-            rows="3"
+            rows="4"
             value={formData.description}
             onChange={handleChange}
-          ></textarea>
+          />
         </div>
 
-        {/* Date création */}
-        <div className="mb-3">
-          <label className="form-label">Date de création</label>
-          <input type="text" className="form-control" value={formData.created_at} readOnly />
+        {/* Date création (readonly) */}
+        <div className="mb-4">
+          <label className="form-label fw-semibold">Date de création</label>
+          <input
+            type="text"
+            className="form-control"
+            value={formData.created_at}
+            readOnly
+          />
         </div>
 
-        <button type="submit" className="btn btn-success">Enregistrer les modifications</button>
+        <div className="d-grid">
+          <button type="submit" className="btn btn-success btn-lg fw-semibold">
+            Enregistrer les modifications
+          </button>
+        </div>
       </form>
     </div>
   );

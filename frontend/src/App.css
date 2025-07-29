@@ -1,46 +1,23 @@
-.icon-circle {
-  width: 60px;
-  height: 60px;
-  background-color: #2563eb; /* bleu */
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
+.navbar {
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
-
-/* Home page decoration */
-.home-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
-
-.section-wrapper {
-  width: 100%;
-  max-width: 1200px;
-  margin: 32px auto;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-  padding: 32px 24px;
-  transition: box-shadow 0.2s;
+.nav-link {
+  font-size: 1.08rem;
+  font-weight: 500;
+  transition: color 0.18s;
 }
-
-.section-wrapper:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+.nav-link.active, .nav-link:focus, .nav-link:hover {
+  color: #66d4ff !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
-
-@media (max-width: 768px) {
-  .section-wrapper {
-    padding: 18px 6px;
-    margin: 18px 0;
-  }
-  .home-container {
-    padding: 0;
-  }
+.btn-link {
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
 }
